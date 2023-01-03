@@ -3,9 +3,15 @@ import { Form, InputGroup, Button, Container, Row, Col } from "react-bootstrap";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
 import axios from "axios";
 import swal from "sweetalert";
-
-const IP = "192.168.0.5"; // "127.0.0.1";
-const Puerto = "8099"; // "8000";
+import {
+  API_PUERTO,
+  API_URL,
+  API_DONAS_GUARDAR,
+  API_USUARIOS_BUSCAR_NOMBRE,
+  API_USUARIOS_GUARDAR,
+  API_USUARIOS_VERIFICAR,
+  API_USUARIOS_ACTUALIZAR_CONEXION,
+} from "../../api/Variables";
 
 //Pagina del login
 const PaginaLogin = (props) => {
@@ -30,7 +36,7 @@ const PaginaLogin = (props) => {
   //Crear donas
   const registrarDona = (nombre) => {
     //Ruta
-    const url = "http://" + IP + ":" + Puerto + "/api/figuras/donas/guardar";
+    const url = API_URL + ":" + API_PUERTO + API_DONAS_GUARDAR;
 
     //Convertimos
     const usuario = { usuario: nombre };
@@ -64,12 +70,31 @@ const PaginaLogin = (props) => {
   };
 
   //Actualizar nombre
-  const actualizarNombre = () => {
-    props.setSesionDeUsuario({
-      isSesionIniciada: true,
-      nombre: nombre,
-      conectado: false,
-    });
+  const actualizarNombre = (name) => {
+    //url
+    const url =
+      API_URL + ":" + API_PUERTO + API_USUARIOS_ACTUALIZAR_CONEXION + name;
+
+    //Elemento
+    const elemento = { conectado: true };
+
+    //Enviamos
+    axios
+      .put(url, elemento)
+      //Éxito
+      .then(function (ex) {
+        props.setSesionDeUsuario({
+          isSesionIniciada: true,
+          nombre: name,
+          conectado: true,
+        });
+      })
+      //Error
+      .catch(function (er) {
+        swal("ERROR", "Ocurrió un error al actualizar el estado!", "error");
+        console.error(`- ERROR AL BUSCAR USUARIO -\n ${er} \n -------------`);
+        return false;
+      });
   };
   //Buscamos nombre existente
   const buscarNombre = async (event) => {
@@ -80,11 +105,10 @@ const PaginaLogin = (props) => {
     if (event.target.value.length > 3 && isNuevo) {
       //Ruta
       const url =
-        "http://" +
-        IP +
+        API_URL +
         ":" +
-        Puerto +
-        "/api/figuras/usuarios/buscar/" +
+        API_PUERTO +
+        API_USUARIOS_BUSCAR_NOMBRE +
         event.target.value;
       //Buscamos
       const r = await buscar(url);
@@ -97,7 +121,7 @@ const PaginaLogin = (props) => {
     event.preventDefault();
 
     //Ruta
-    const url = "http://" + IP + ":" + Puerto + "/api/figuras/usuarios/guardar";
+    const url = API_URL + ":" + API_PUERTO + API_USUARIOS_GUARDAR;
 
     //obtenemos datos
     const formData = new FormData(refFormulario.current);
@@ -125,8 +149,7 @@ const PaginaLogin = (props) => {
     event.preventDefault();
 
     //Ruta
-    const url =
-      "http://" + IP + ":" + Puerto + "/api/figuras/usuarios/verificar";
+    const url = API_URL + ":" + API_PUERTO + API_USUARIOS_VERIFICAR;
 
     //Obtenemos datos
     const formData = new FormData(refFormulario.current);
@@ -136,22 +159,34 @@ const PaginaLogin = (props) => {
       .post(url, formData)
       //Éxito
       .then(function (ex) {
-        if (ex.response.status === 200) {
-          setNombre("");
-          setPassword("");
-          actualizarNombre();
-        }
+        setNombre("");
+        setPassword("");
+        actualizarNombre(ex.data.nombre);
       })
       //Error
       .catch(function (er) {
-        if (er.response.status === 401) {
-          swal("ERROR", "Usuario o contraseña incorrectos!", "error");
-        } else {
-          swal("ERROR", "Ocurrió un error inesperado!", "error");
-          console.error(
-            `- ERROR AL VERIFICAR USUARIO -\n ${er} \n -------------`
-          );
+        if (er !== null && er !== undefined) {
+          if (er.response) {
+            switch (er.response.status) {
+              case 401:
+                swal("ERROR", er.response.data.error + "!", "error");
+                return;
+              default:
+                swal("ERROR", "Ocurrió un error en la consulta!", "error");
+                console.error(
+                  `- ERROR AL VERIFICAR USUARIO -\n ${er} \n -------------`
+                );
+                return;
+            }
+          }
+          swal("ERROR", "Ocurrió un error en extraño!", "error");
+          return;
         }
+
+        swal("ERROR", "Ocurrió un error en la consulta!", "error");
+        console.error(
+          `- ERROR AL VERIFICAR USUARIO -\n ${er} \n -------------`
+        );
       });
   };
 

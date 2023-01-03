@@ -1,16 +1,14 @@
-import React, { useState, useRef } from "react";
-import {
-  Form,
-  InputGroup,
-  Button,
-  Figure,
-  Container,
-  Row,
-  Col,
-} from "react-bootstrap";
+import React from "react";
+import { Button, Container, Row, Col } from "react-bootstrap";
 import swal from "sweetalert";
-import ControlDeErrores from "../componentes/ControlDeErrores";
 import EscenaDona from "../escenas/EscenaDona";
+import axios from "axios";
+import {
+  API_USUARIOS_ACTUALIZAR_CONEXION,
+  API_PUERTO,
+  API_URL,
+} from "../api/Variables";
+import { actualizarNombreDeUsuario } from "../apiFiguras/apiDona";
 
 //Pagina de la figura
 const PaginaFigura = (props) => {
@@ -30,19 +28,49 @@ const PaginaFigura = (props) => {
 
   //Cerramos sesión
   const cerrarSesion = () => {
-    //Actualizamos
-    props.setSesionDeUsuario({
-      isSesionIniciada: false,
-      nombre: null,
-      conectado: false,
-    });
+    //url
+    const url =
+      API_URL +
+      ":" +
+      API_PUERTO +
+      API_USUARIOS_ACTUALIZAR_CONEXION +
+      props.sesionUsuario.nombre;
 
-    //Eliminamos variable del storage
-    sessionStorage.removeItem("SesionUsuario");
+    //Elemento
+    const elemento = { conectado: false };
 
-    //Mensaje
-    swal("ÉXITO", "Se cerro la sesion correctamente!", "success");
+    //Enviamos
+    axios
+      .put(url, elemento)
+      //Éxito
+      .then(function (ex) {
+        //Actualizamos
+        props.setSesionDeUsuario({
+          isSesionIniciada: false,
+          nombre: null,
+          conectado: false,
+        });
+
+        //Eliminamos variable del storage
+        sessionStorage.removeItem("SesionUsuario");
+
+        //Paramos hilo
+        actualizarNombreDeUsuario(null);
+
+        //Mensaje
+        swal("ÉXITO", "Se cerro la sesion correctamente!", "success");
+      })
+      //Error
+      .catch(function (er) {
+        swal("ERROR", "Ocurrió un error al actualizar el estado!", "error");
+        console.error(`- ERROR AL BUSCAR USUARIO -\n ${er} \n -------------`);
+      });
   };
+
+  //Ponemos nombre
+  actualizarNombreDeUsuario(
+    props.sesionUsuario.isSesionIniciada ? props.sesionUsuario.nombre : null
+  );
 
   return (
     // Formulario
@@ -58,9 +86,7 @@ const PaginaFigura = (props) => {
                 : "???"}
             </h1>
             {/* Figura */}
-            <ControlDeErrores>
-              <MostrarFiguras />
-            </ControlDeErrores>
+            <MostrarFiguras />
             <br />
             {/* Botones */}
             <Button variant="primary" type="button">

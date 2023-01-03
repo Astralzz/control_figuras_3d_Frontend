@@ -80,7 +80,7 @@ class Dona {
 
   //Cambiar color
   cambiarColor(color) {
-    this.mesh.material.color.set(color);
+    this.mesh.material.color.set("#" + color);
   }
 
   //Cambiar Opacidad

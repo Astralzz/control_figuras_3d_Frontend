@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
-import componentesDona from "../apiFiguras/apiDona";
+import { componentesDona } from "../apiFiguras/apiDona";
 import Dona from "../figuras/Dona";
 
 //Tamaños
@@ -27,16 +27,16 @@ const materialesDeLaDona = new THREE.MeshBasicMaterial({
 function actualizarDona(dona) {
   //Rotación de la dona
   switch (componentesDona.rotacion) {
-    case 1: //Derecha
+    case "DERECHA": //Derecha
       dona.rotarDerecha();
       break;
-    case 2: //Izquierda
+    case "IZQUIERDA": //Izquierda
       dona.rotarIzquierda();
       break;
-    case 3: //Arriba
+    case "ARRIBA": //Arriba
       dona.rotarArriba();
       break;
-    case 4: //Abajo
+    case "ABAJO": //Abajo
       dona.rotarAbajo();
       break;
     default:
@@ -47,17 +47,17 @@ function actualizarDona(dona) {
   //Movimiento de la dona
   const limiteX = 3.1;
   const limiteY = 2.24;
-  switch (componentesDona.posicion) {
-    case 1: //Derecha
+  switch (componentesDona.movimiento) {
+    case "DERECHA": //Derecha
       dona.moverDerecha(limiteX);
       break;
-    case 2: //Izquierda
+    case "IZQUIERDA": //Izquierda
       dona.moverIzquierda(-limiteX);
       break;
-    case 3: //Arriba
+    case "ARRIBA": //Arriba
       dona.moverArriba(limiteY);
       break;
-    case 4: //Abajo
+    case "ABAJO": //Abajo
       dona.moverAbajo(-limiteY);
       break;
     default:
@@ -65,7 +65,7 @@ function actualizarDona(dona) {
   }
 
   //Color
-  dona.cambiarColor(componentesDona.color);
+  dona.cambiarColor(componentesDona.color_dona);
 
   //Opacidad
   dona.cambiarOpacidad(componentesDona.opacidad);
@@ -99,7 +99,7 @@ const EscenaDona = ({ width, height, sesionUsuario }) => {
       }
       function animate() {
         //Color de fondo
-        escena.background = new THREE.Color("#C0C0C0");
+        escena.background = new THREE.Color("#" + componentesDona.color_fondo);
 
         //Actualizamos dona
         actualizarDona(dona);
