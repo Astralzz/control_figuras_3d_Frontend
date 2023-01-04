@@ -1,8 +1,9 @@
 import React, { useState, useRef } from "react";
-import { Form, InputGroup, Button, Container, Row, Col } from "react-bootstrap";
+import { Form, InputGroup, Button, Container } from "react-bootstrap";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
 import axios from "axios";
 import swal from "sweetalert";
+import fondoLogin from "../../img/fondoLogin.jpg";
 import {
   API_PUERTO,
   API_URL,
@@ -235,12 +236,15 @@ const PaginaLogin = (props) => {
       <div className="container py-5 h-100">
         <div className="Auth-form-container">
           <div className="col col-xl-10">
-            <div className="card" style={{ borderRadius: "1rem" }}>
+            <div
+              className="card"
+              style={{ borderRadius: "1rem", borderColor: "transparent" }}
+            >
               <div className="row g-0">
                 {/* Parte de ka imagen */}
                 <div className="col-md-6 col-lg-5 d-none d-md-block">
                   <img
-                    src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img1.webp"
+                    src={fondoLogin}
                     alt="login form"
                     className="img-fluid"
                     style={{ borderRadius: "1rem 0 0 1rem" }}
